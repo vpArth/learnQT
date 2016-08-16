@@ -1,6 +1,6 @@
  Базовые приложения:
   ✔ helloworld without QtCreator @done
-  ☐ same thing(helloworld) with Qt Designer/Creator
+  ✔ same thing(helloworld) with Qt Designer/Creator @done
   ☐ TodoList
   ☐ Calculator
   ☐ Math graph builder (interpreter, pixel canvas)
