@@ -1,17 +1,11 @@
 #include <QApplication>
-#include <QDialog>
-#include <QLabel>
+#include "mDialog.h"
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
-    QDialog *dialog = new QDialog;
-    QLabel *label = new QLabel(dialog);
-    label->setText("<font color=red>Hello, World!</font>");
-    dialog->show();
 
-    int ret = app.exec();
+    mDialog dialog("Press <b>button</b> to close");
+    dialog.show();
 
-    delete label;
-    delete dialog;
-    return ret;
+    return app.exec();
 }

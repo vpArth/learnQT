@@ -6,3 +6,6 @@
 *.o
 
 *.pro.user
+moc_*.cpp
+.qmake.stash
+build*/
