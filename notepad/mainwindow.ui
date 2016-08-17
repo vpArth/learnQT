@@ -30,7 +30,7 @@
     </rect>
    </property>
    <property name="defaultUp">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -198,22 +198,6 @@
     </hint>
    </hints>
   </connection>
-  <connection>
-   <sender>textEdit</sender>
-   <signal>textChanged()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>modified()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>199</x>
-     <y>157</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>149</y>
-    </hint>
-   </hints>
-  </connection>
  </connections>
  <slots>
   <slot>save()</slot>
@@ -221,6 +205,5 @@
   <slot>quit()</slot>
   <slot>create()</slot>
   <slot>saveAs()</slot>
-  <slot>modified()</slot>
  </slots>
 </ui>

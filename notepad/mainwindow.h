@@ -18,19 +18,24 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+protected:
+    void setFilename(QString fileName);
+    bool confirm();
+    bool openFile(QString fileName);
+    bool saveFile(QString fileName);
+
 private slots:
     void create();
-    void open();
-    void save();
-    void saveAs();
+    bool open();
+    bool save();
+    bool saveAs();
     void quit();
 
-    void modified();
 private:
     QString fn;
-    bool saved;
     Ui::MainWindow *ui;
-    bool canReplace();
+
 };
 
 #endif // MAINWINDOW_H

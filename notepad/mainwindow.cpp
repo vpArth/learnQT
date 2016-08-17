@@ -12,7 +12,10 @@ MainWindow::MainWindow(QWidget *parent) :
     addAction(ui->actionSave_as);
     addAction(ui->actionQuit);
 
-    saved = true;
+    if (argc>1) {
+        open();
+    }
+    create();
 }
 
 MainWindow::~MainWindow()
@@ -22,68 +25,63 @@ MainWindow::~MainWindow()
 
 void MainWindow::create()
 {
-    if (!canReplace()) return;
-    saved = true;
+    QTextDocument *doc = ui->textEdit->document();
+    if (!confirm()) return;
     fn = "";
-    ui->textEdit->setText("");
+    setWindowTitle("Notepad - untitled.txt");
+    doc->clear();
+    doc->setModified(false);
 }
 
-bool MainWindow::canReplace()
+bool MainWindow::confirm()
 {
-    if (!saved) {
-        // todo: confirmation dialog(save/not save/cancel)
-        //return false; // on cancel
+    QTextDocument *doc = ui->textEdit->document();
+    if (doc->isModified()) {
+        QMessageBox msgBox;
+        msgBox.setText("The document has been modified.");
+        msgBox.setInformativeText("Do you want to save your changes?");
+        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Save);
+        switch (msgBox.exec()) {
+          case QMessageBox::Save:
+              return save();
+          case QMessageBox::Discard:
+              return true;
+          case QMessageBox::Cancel:
+              return false;
+        }
     }
     return true;
 }
 
-void MainWindow::open()
+bool MainWindow::open()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "",
         tr("Text Files (*.txt);;C++ Files (*.cpp *.h)"));
 
-    if (fileName != "") {
-        QFile file(fileName);
-        if (!file.open(QIODevice::ReadOnly)) {
-            QMessageBox::critical(this, tr("Error"), tr("Could not open file"));
-            return;
-        }
 
-        if (!canReplace()) return;
-
-        QTextStream in(&file);
-        ui->textEdit->setText(in.readAll());
-        file.close();
-        fn = fileName;
-        saved = true;
+    bool ret = fileName != "";
+    if (ret) {
+        openFile(fileName);
     }
+    return ret;
 }
 
-void MainWindow::save()
+bool MainWindow::save()
 {
     if (fn == "") return saveAs();
-    if (saved) return;
-    QFile file(fn);
-    if (!file.open(QIODevice::WriteOnly)) {
-        QMessageBox::critical(this, tr("Error"), tr("Could not save to file"));
-    } else {
-        QTextStream stream(&file);
-        stream << ui->textEdit->toPlainText();
-        stream.flush();
-        file.close();
-        saved = true;
-    }
+    return saveFile(fn);
 }
 
-void MainWindow::saveAs()
+bool MainWindow::saveAs()
 {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "",
     tr("Text Files (*.txt);;C++ Files (*.cpp *.h)"));
 
     if (fileName != "") {
-        fn = fileName;
-        save();
+        return saveFile(fileName);
     }
+    return false;
 }
 
 void MainWindow::quit()
@@ -91,7 +89,51 @@ void MainWindow::quit()
     close();
 }
 
-void MainWindow::modified()
+// protected
+
+void MainWindow::setFilename(QString fileName)
 {
-    saved = false;
+    if (fn != fileName) {
+        fn = fileName;
+        setWindowTitle("Notepad - "+fileName);
+    }
 }
+
+bool MainWindow::openFile(QString fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        QMessageBox::critical(this, tr("Error"), tr("Could not open file"));
+        return false;
+    }
+
+    if (!confirm()) return false;
+
+    QTextStream in(&file);
+    ui->textEdit->document()->setPlainText(in.readAll());
+    ui->textEdit->document()->setModified(false);
+
+    file.close();
+
+    setFilename(fileName);
+    return true;
+}
+
+bool MainWindow::saveFile(QString fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        QMessageBox::critical(this, tr("Error"), tr("Could not save to file"));
+    } else {
+        QTextStream stream(&file);
+        stream << ui->textEdit->document()->toPlainText();
+        stream.flush();
+        file.close();
+
+        ui->textEdit->document()->setModified(false);
+        setFilename(fileName);
+        return true;
+    }
+    return false;
+}
+
